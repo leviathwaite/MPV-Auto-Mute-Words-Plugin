@@ -4,7 +4,8 @@
 
     Reads a sidecar ".mute.json" timetable that lists time intervals during
     which audio should be muted, then mutes/unmutes MPV automatically as the
-    playback position crosses those boundaries.
+    playback position crosses those boundaries while preserving manual mute
+    state that was already enabled before an interval began.
 
     Sidecar file lookup order (first match wins):
       1. <media_dir>/<media_basename_no_ext>.mute.json
@@ -45,6 +46,9 @@ options.read_options(o, "active_mute")
 -- ── Module state ──────────────────────────────────────────────────────────────
 local mute_intervals  = {}   -- sorted list of {start, end} tables
 local plugin_muted    = false
+local mute_before_plugin = false
+local manual_mute_during_interval = false
+local internal_mute_change = false
 local timer           = nil
 local POLL_INTERVAL   = 0.05 -- seconds between position checks
 
@@ -235,10 +239,26 @@ end
 
 -- ── Mute logic ────────────────────────────────────────────────────────────────
 
-local function set_mute(mute, reason)
-    if plugin_muted == mute then return end
-    plugin_muted = mute
+local function set_mute_property(mute)
+    internal_mute_change = true
     mp.set_property_bool("mute", mute)
+    internal_mute_change = false
+end
+
+local function set_mute(mute, reason)
+    local actual = mp.get_property_bool("mute")
+    if plugin_muted == mute and actual == mute then return end
+
+    if mute and not plugin_muted then
+        mute_before_plugin = actual == true
+        manual_mute_during_interval = false
+    end
+
+    plugin_muted = mute
+    if actual ~= mute then
+        set_mute_property(mute)
+    end
+
     if o.show_osd then
         local label = mute and "🔇 Muted" or "🔊 Unmuted"
         mp.osd_message(label .. " (" .. (reason or "") .. ")", o.osd_duration / 1000)
@@ -273,7 +293,15 @@ local function on_tick()
         set_mute(true, string.format("%.2fs–%.2fs", iv.start, iv.stop))
     else
         if plugin_muted then
-            set_mute(false, "interval ended")
+            local keep_muted = mute_before_plugin or manual_mute_during_interval
+            plugin_muted = false
+            mute_before_plugin = false
+            manual_mute_during_interval = false
+            if keep_muted then
+                msg.verbose("Leaving mute enabled due to manual mute precedence")
+            else
+                set_mute(false, "interval ended")
+            end
         end
     end
 end
@@ -291,8 +319,10 @@ local function on_file_loaded()
     -- Reset state
     stop_timer()
     mute_intervals = {}
+    mute_before_plugin = false
+    manual_mute_during_interval = false
     if plugin_muted then
-        mp.set_property_bool("mute", false)
+        set_mute_property(false)
         plugin_muted = false
     end
 
@@ -322,11 +352,22 @@ end
 local function on_end_file()
     stop_timer()
     if plugin_muted then
-        mp.set_property_bool("mute", false)
+        set_mute_property(false)
         plugin_muted = false
     end
+    mute_before_plugin = false
+    manual_mute_during_interval = false
     mute_intervals = {}
 end
+
+mp.observe_property("mute", "bool", function(_, value)
+    if internal_mute_change then
+        return
+    end
+    if plugin_muted and value == true then
+        manual_mute_during_interval = true
+    end
+end)
 
 -- ── Keybinding / script-message handlers ─────────────────────────────────────
 
@@ -336,8 +377,10 @@ mp.register_script_message("active-mute-toggle", function()
     mp.osd_message("Auto-mute " .. state, o.osd_duration / 1000)
     msg.info("Plugin " .. state)
     if not o.enabled and plugin_muted then
-        mp.set_property_bool("mute", false)
+        set_mute_property(false)
         plugin_muted = false
+        mute_before_plugin = false
+        manual_mute_during_interval = false
     end
 end)
 

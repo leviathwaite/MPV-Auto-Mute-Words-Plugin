@@ -3,7 +3,8 @@
 Automatically mutes offensive or restricted words during MPV video playback.
 A Python utility transcribes your media with [WhisperX](https://github.com/m-bain/whisperX)
 and produces a lightweight sidecar JSON *timetable*; the MPV Lua plugin reads
-that timetable and mutes/unmutes in real time.
+that timetable and mutes/unmutes in real time while preserving pre-existing
+manual mute state.
 
 ---
 
@@ -25,6 +26,15 @@ scripts/active_mute.lua         ← loaded automatically by MPV
 🔇  seamless muted playback
 ```
 
+Optional desktop flow:
+
+```
+tools/build_mute_timetable_ui.py
+      │  (file picker + CLI wrapper)
+      ▼
+tools/build_mute_timetable.py
+```
+
 ---
 
 ## Repository structure
@@ -35,6 +45,8 @@ MPV-Auto-Mute-Words-Plugin/
 │   └── active_mute.lua          # MPV Lua plugin
 ├── tools/
 │   └── build_mute_timetable.py  # Timetable generator (Python)
+│   └── build_mute_timetable_ui.py
+│                               # Desktop file-picker wrapper
 ├── config/
 │   └── badwords.txt             # Default bad-words list
 ├── examples/
@@ -87,6 +99,18 @@ python tools/build_mute_timetable.py /path/to/movie.mkv \
 ```
 
 This creates `/path/to/movie.mute.json` next to the media file.
+
+Prefer a desktop picker instead of the CLI?
+
+```bash
+python tools/build_mute_timetable_ui.py
+```
+
+The UI lets you:
+- choose the media file with a file picker
+- keep the repository `config/badwords.txt` list or browse to a custom list
+- adjust core WhisperX options before starting the build
+- watch the CLI output in a log panel
 
 Full CLI reference:
 
