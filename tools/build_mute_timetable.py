@@ -26,7 +26,8 @@ Examples:
 from __future__ import annotations
 
 import argparse
-import importlib
+from importlib import import_module
+from importlib.util import find_spec
 import json
 import os
 import re
@@ -38,13 +39,13 @@ from typing import Any
 # ── Dependency check ──────────────────────────────────────────────────────────
 
 def _require(package: str, pip_name: str | None = None) -> Any:
-    if importlib.util.find_spec(package) is None:
+    if find_spec(package) is None:
         pip = pip_name or package
         sys.exit(
             f"[error] Required package '{pip}' is not installed.\n"
             f"        Run:  pip install {pip}"
         )
-    return importlib.import_module(package)
+    return import_module(package)
 
 
 # ── Constants ─────────────────────────────────────────────────────────────────
