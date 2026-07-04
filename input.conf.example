@@ -1,0 +1,13 @@
+# input.conf.example — MPV Auto-Mute-Words Plugin
+#
+# Copy the lines you want into your MPV input.conf
+# (usually ~/.config/mpv/input.conf).
+#
+# These bindings send script-messages to active_mute.lua.
+
+# Toggle the auto-mute plugin on/off during playback
+ctrl+m  script-message active-mute-toggle
+
+# Force-reload the sidecar timetable for the current file
+# (useful if you regenerated the JSON while the file is open)
+ctrl+r  script-message active-mute-reload

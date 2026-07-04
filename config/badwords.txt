@@ -1,0 +1,15 @@
+# Bad-words list for MPV-Auto-Mute-Words-Plugin
+#
+# One word or phrase per line.  Lines starting with '#' are comments.
+# Words are matched case-insensitively after stripping punctuation.
+#
+# Add or remove entries to customise which words trigger muting.
+# You can also supply a different file with --badwords when running
+# tools/build_mute_timetable.py.
+#
+# ── Example entries (replace / extend with your own list) ────────────────────
+damn
+hell
+crap
+ass
+bastard
