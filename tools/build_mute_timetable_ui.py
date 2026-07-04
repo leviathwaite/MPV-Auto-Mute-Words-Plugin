@@ -11,9 +11,17 @@ from __future__ import annotations
 import subprocess
 import sys
 import threading
-import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
+
+try:
+    import tkinter as tk
+    from tkinter import filedialog, messagebox, ttk
+except ModuleNotFoundError as exc:  # pragma: no cover - depends on system package
+    tk = None
+    filedialog = messagebox = ttk = None
+    TK_IMPORT_ERROR = exc
+else:
+    TK_IMPORT_ERROR = None
 
 from build_mute_timetable import DEFAULT_BADWORDS, VALID_MODELS
 
@@ -295,6 +303,11 @@ class TimetableUi:
 
 
 def main() -> None:
+    if TK_IMPORT_ERROR is not None:
+        sys.exit(
+            "Tkinter is not available in this Python environment.\n"
+            "Install the platform's Tk package, then re-run this tool."
+        )
     root = tk.Tk()
     ttk.Style(root)
     TimetableUi(root)

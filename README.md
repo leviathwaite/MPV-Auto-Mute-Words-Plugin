@@ -112,6 +112,9 @@ The UI lets you:
 - adjust core WhisperX options before starting the build
 - watch the CLI output in a log panel
 
+> If the UI reports that Tkinter is unavailable, install your platform's Tk
+> package for Python (for example `python3-tk` on many Linux distributions).
+
 Full CLI reference:
 
 ```
