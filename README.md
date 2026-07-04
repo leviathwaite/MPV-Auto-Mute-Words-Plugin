@@ -156,7 +156,7 @@ Example: playing `~/Videos/Movie.mkv` → looks for
 ```json
 {
   "version": 1,
-  "source": "movie.mkv",
+  "media": "movie.mkv",
   "generated_at": "2024-06-01T12:00:00+00:00",
   "model": "base",
   "entry_count": 2,

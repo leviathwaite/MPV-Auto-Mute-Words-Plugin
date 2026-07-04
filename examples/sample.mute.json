@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "source": "sample_video.mp4",
+  "media": "sample_video.mp4",
   "generated_at": "2024-06-01T12:00:00+00:00",
   "model": "base",
   "entry_count": 4,
