@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+.env
+
+# Whisper / model cache
+*.pt
+*.bin
+
+# Generated timetables (keep examples/, ignore user-generated ones)
+*.mute.json
+!examples/sample.mute.json
+
+# Media files
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.mp3
+*.wav
+*.flac
+*.m4a
+*.aac
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux / editor
+*~
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Logs
+*.log

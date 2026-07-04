@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "source": "sample_video.mp4",
+  "generated_at": "2024-06-01T12:00:00+00:00",
+  "model": "base",
+  "entry_count": 4,
+  "entries": [
+    { "start": 8.32,  "end": 8.74  },
+    { "start": 42.10, "end": 42.65 },
+    { "start": 97.88, "end": 98.21 },
+    { "start": 183.44, "end": 184.02 }
+  ]
+}
