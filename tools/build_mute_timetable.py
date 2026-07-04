@@ -26,6 +26,7 @@ Examples:
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import os
 import re
@@ -36,20 +37,14 @@ from typing import Any
 
 # ── Dependency check ──────────────────────────────────────────────────────────
 
-def _require(package: str, pip_name: str | None = None) -> None:
-    import importlib
+def _require(package: str, pip_name: str | None = None) -> Any:
     if importlib.util.find_spec(package) is None:
         pip = pip_name or package
         sys.exit(
             f"[error] Required package '{pip}' is not installed.\n"
             f"        Run:  pip install {pip}"
         )
-
-_require("whisperx")
-_require("torch")
-
-import torch  # noqa: E402  (import after check)
-import whisperx  # noqa: E402
+    return importlib.import_module(package)
 
 
 # ── Constants ─────────────────────────────────────────────────────────────────
@@ -92,6 +87,7 @@ def normalise_word(token: str) -> str:
 
 def detect_device() -> str:
     """Return 'cuda' if a GPU is available, otherwise 'cpu'."""
+    torch = _require("torch")
     return "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -110,6 +106,7 @@ def transcribe(
     Returns a flat list of word-level dicts:
       { "word": str, "start": float, "end": float }
     """
+    whisperx = _require("whisperx")
     print(f"[info ] Loading WhisperX model '{model_name}' on {device} …")
     model = whisperx.load_model(
         model_name,
@@ -197,7 +194,7 @@ def write_timetable(
     """Serialise the timetable to JSON."""
     payload = {
         "version": TIMETABLE_VERSION,
-        "source": media_path.name,
+        "media": media_path.name,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "model": model_name,
         "entry_count": len(entries),
